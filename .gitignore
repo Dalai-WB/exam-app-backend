@@ -2,3 +2,6 @@
 /node_modules
 npm-debug.log
 yarn-error.log
+.env
+config/serviceAccountKey.json
+key.b64.txt
