@@ -23,7 +23,7 @@ admin.initializeApp({
 
 // Enable CORS for requests from localhost:4200
 app.use(cors({
-  origin: 'http://localhost:4200'
+  origin: ['http://localhost:4200', 'https://exam-app-8zxj.onrender.com']
 }));
 // Middlewares
 app.use(bodyParser.json());
