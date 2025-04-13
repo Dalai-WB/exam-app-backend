@@ -214,3 +214,14 @@ exports.updateExam = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+exports.testExam = async (req, res) => {
+  try {
+    return res.status(200).json({
+      message: 'testExam successfully',
+    });
+  } catch (err) {
+    console.error('Error saving or updating exam:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};

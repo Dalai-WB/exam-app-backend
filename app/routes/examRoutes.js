@@ -8,5 +8,6 @@ router.post('/create', examController.saveExam)
 router.post('/update/:examId', examController.updateExam)
 router.get('/admin/:examId', examController.getAdminExam);
 router.get('/:examId/:fireId', examController.getExam);
+router.get('/test-exam', examController.testExam);
 
 module.exports = router;
