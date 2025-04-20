@@ -65,8 +65,8 @@ exports.getExamAll = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Find all exams without questions
-    const exams = await Exam.find().select('-questions');
+    // Find all exams without questions, and sort them in the desired order
+    const exams = await Exam.find().select('-questions').sort({ _id: 1 }); // Replace with your own ordering logic if needed
 
     // Find all user attempts
     const userAttempts = await UserExam.find({ user: user._id }).select('exam score');
@@ -77,18 +77,33 @@ exports.getExamAll = async (req, res) => {
       return map;
     }, {});
 
-    // Add score to exams if user attempted
-    const examsWithScores = exams.map((exam) => {
-      const score = attemptMap.hasOwnProperty(exam._id.toString())
-        ? attemptMap[exam._id.toString()]
-        : null; // Null if no attempt
-      return {
+    // Determine exam statuses
+    const examsWithStatus = [];
+    let unlockNext = true;
+
+    for (const exam of exams) {
+      const examIdStr = exam._id.toString();
+      const hasAttempt = attemptMap.hasOwnProperty(examIdStr);
+      const score = hasAttempt ? attemptMap[examIdStr] : null;
+
+      let status;
+      if (hasAttempt) {
+        status = 'taken';
+      } else if (unlockNext) {
+        status = 'available';
+        unlockNext = false;
+      } else {
+        status = 'locked';
+      }
+
+      examsWithStatus.push({
         ...exam.toObject(),
         score,
-      };
-    });
+        status,
+      });
+    }
 
-    res.json(examsWithScores);
+    res.json(examsWithStatus);
   } catch (error) {
     console.error(error);
     res.status(500).send('Error occurred while fetching exams');
