@@ -6,6 +6,7 @@ const questionSchema = new mongoose.Schema({
   correctAnswer: String,
   category: String,
   questionPoint: Number,
+  solution: String,
   answerType: String,
 });
 

@@ -6,7 +6,7 @@ exports.getExam = async (req, res) => {
 
     const exam = await Exam.findById(examId).populate({
       path: 'questions',
-      select: '-correctAnswer'
+      select: '-correctAnswer -solution'
     });
     const user = await User.findOne({ fireId });
     if (!user) {
