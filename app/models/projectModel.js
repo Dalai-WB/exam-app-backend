@@ -8,6 +8,7 @@ const questionSchema = new mongoose.Schema({
   questionPoint: Number,
   solution: String,
   answerType: String,
+  fillTypeKeys: [String],
 });
 
 const examSchema = new mongoose.Schema({
