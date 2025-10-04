@@ -2,11 +2,13 @@ const { User } = require('../models/projectModel');
 const admin = require('firebase-admin');
 
 exports.register = async (req, res) => {
-  const { username, role, fireId, teacherId } = req.body;
+  const { username, firstName, lastName, role, fireId, teacherId } = req.body;
   try {
 
     const newUser = new User({
       username,
+      firstName,
+      lastName,
       role,
       fireId,
       teacherId: teacherId !== '' ? teacherId : null,

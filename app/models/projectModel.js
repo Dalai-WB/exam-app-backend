@@ -20,6 +20,8 @@ const examSchema = new mongoose.Schema({
 
 const userSchema = new mongoose.Schema({
   username: String,
+  firstName: String,
+  lastName: String,
   role: String,
   fireId: String,
   teacherId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
