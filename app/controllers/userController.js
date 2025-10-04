@@ -155,3 +155,20 @@ exports.deleteUser = async (req, res) => {
     res.status(500).json({ message: 'Error deleting user from MongoDB, please try again.' });
   }
 };
+
+exports.getUserProfile = async (req, res) => {
+  try {
+    const { fireId } = req.params;
+
+    const user = await User.findOne({ fireId });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(user); // return the entire user
+  } catch (error) {
+    console.error("Error fetching user info:", error);
+    res.status(500).json({ message: "Error fetching user information" });
+  }
+};

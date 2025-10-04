@@ -9,5 +9,6 @@ router.put('/approve/:userId/:durationMonth', userController.approve);
 router.get('/role-status/:fireId', userController.getUserRole);
 router.get('/status/:status', userController.getPendingRequests);
 router.delete('/:userId', userController.deleteUser);
+router.get('/profile/:fireId', userController.getUserProfile);
 
 module.exports = router;
