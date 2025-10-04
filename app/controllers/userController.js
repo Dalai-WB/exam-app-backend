@@ -34,7 +34,7 @@ exports.getUserRole = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    res.json({ role: user.role, status: user.status });
+    res.json({ firstName: user.firstName, role: user.role, status: user.status });
   } catch (error) {
     console.error('Error fetching user info:', error);
     res.status(500).json({ message: 'Error fetching user information' });
