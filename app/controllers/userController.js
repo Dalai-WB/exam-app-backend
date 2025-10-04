@@ -87,31 +87,44 @@ exports.getPendingRequests = async (req, res) => {
 };
 
 exports.approve = async (req, res) => {
-  const { userId } = req.params;
+  const { userId, durationMonth } = req.params;
 
   try {
     if (!userId) {
-      return res.status(400).json({ message: 'User ID is required.' });
+      return res.status(400).json({ message: "User ID is required." });
     }
 
-    // Find the user and update the status
+    if (!durationMonth || isNaN(durationMonth)) {
+      return res.status(400).json({ message: "Duration (in months) is required and must be a number." });
+    }
+
+    // Calculate subscription dates
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + Number(durationMonth));
+
+    // Update user
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { status: 'active' },
-      { new: true } // Return the updated document
+      {
+        status: "active",
+        startDate: startDate,
+        endDate: endDate
+      },
+      { new: true }
     );
 
     if (!updatedUser) {
-      return res.status(404).json({ message: 'User not found.' });
+      return res.status(404).json({ message: "User not found." });
     }
 
     res.status(200).json({
-      message: 'User status updated successfully!',
+      message: "User subscription approved successfully!",
       user: updatedUser,
     });
   } catch (error) {
-    console.error('Error updating user status:', error);
-    res.status(500).json({ message: 'Error updating user status, please try again.' });
+    console.error("Error updating user subscription:", error);
+    res.status(500).json({ message: "Error updating subscription, please try again." });
   }
 };
 

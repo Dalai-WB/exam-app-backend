@@ -26,6 +26,8 @@ const userSchema = new mongoose.Schema({
   fireId: String,
   teacherId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   status: String,
+  startDate: Date,
+  endDate: Date
 });
 
 const userExamSchema = new mongoose.Schema({
