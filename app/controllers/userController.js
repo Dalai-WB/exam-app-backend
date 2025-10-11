@@ -1,4 +1,4 @@
-const { User } = require('../models/projectModel');
+const { User, UserExam } = require('../models/projectModel');
 const admin = require('firebase-admin');
 
 exports.register = async (req, res) => {
@@ -160,15 +160,77 @@ exports.getUserProfile = async (req, res) => {
   try {
     const { fireId } = req.params;
 
+    // Step 1: Find the user
     const user = await User.findOne({ fireId });
-
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.json(user); // return the entire user
+    // Step 2: Aggregate average scores and rankings
+    const rankings = await UserExam.aggregate([
+      {
+        $group: {
+          _id: "$user",
+          totalScore: { $sum: "$score" },
+          examCount: { $sum: 1 },
+          avgScore: { $avg: "$score" }
+        }
+      },
+      {
+        $sort: { avgScore: -1 }
+      }
+    ]);
+
+    // Step 3: Find the current user's ranking and stats
+    let userStats = null;
+    rankings.forEach((entry, index) => {
+      if (entry._id.toString() === user._id.toString()) {
+        userStats = {
+          totalScore: entry.totalScore,
+          examCount: entry.examCount,
+          avgScore: entry.avgScore,
+          rank: index + 1
+        };
+      }
+    });
+
+    // If user has never taken an exam, manually set defaults
+    if (!userStats) {
+      userStats = {
+        totalScore: 0,
+        examCount: 0,
+        avgScore: 0,
+        rank: null // or set to "unranked"
+      };
+    }
+
+    // Step 4: Prepare top 10 users
+    const top10UserIds = rankings.slice(0, 10).map(entry => entry._id);
+
+    const top10UsersRaw = await User.find({ _id: { $in: top10UserIds } })
+      .select('firstName lastName username role')
+      .lean();
+
+    const top10 = top10UsersRaw.map(u => {
+      const stats = rankings.find(r => r._id.toString() === u._id.toString());
+      return {
+        ...u,
+        avgScore: stats?.avgScore || 0,
+        totalScore: stats?.totalScore || 0,
+        examCount: stats?.examCount || 0,
+        rank: rankings.findIndex(r => r._id.toString() === u._id.toString()) + 1
+      };
+    });
+
+    // Step 5: Return user info, stats, and leaderboard
+    res.json({
+      user,
+      userStats,
+      top10
+    });
+
   } catch (error) {
-    console.error("Error fetching user info:", error);
-    res.status(500).json({ message: "Error fetching user information" });
+    console.error("Error fetching user profile and ranking:", error);
+    res.status(500).json({ message: "Error fetching user profile and ranking" });
   }
 };
