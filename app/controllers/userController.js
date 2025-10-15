@@ -234,3 +234,28 @@ exports.getUserProfile = async (req, res) => {
     res.status(500).json({ message: "Error fetching user profile and ranking" });
   }
 };
+
+exports.updateUserProfile = async (req, res) => {
+  try {
+    const { fireId } = req.params;
+    const updateData = req.body;
+
+    // Step 1: Find the user
+    const user = await User.findOne({ fireId });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Step 2: Update user fields with data from req.body
+    Object.assign(user, updateData);
+
+    // Step 3: Save the updated user
+    await user.save();
+
+    // Step 4: Return the updated user
+    res.status(200).json({ message: "User profile updated", user });
+  } catch (error) {
+    console.error("Error updating user profile", error);
+    res.status(500).json({ message: "Error updating user profile" });
+  }
+};
