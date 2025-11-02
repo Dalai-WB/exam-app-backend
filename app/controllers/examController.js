@@ -139,28 +139,34 @@ exports.saveUserExamAttempt = async (req, res) => {
 
 exports.saveExam = async (req, res) => {
   try {
-    const { examName, duration, totalPoint, questions } = req.body;
+    const { examName, duration, questions } = req.body;
 
     // Validate input
-    if (!examName || !duration || !totalPoint || !questions || questions.length === 0) {
+    if (!examName || !duration || !questions || questions.length === 0) {
       return res.status(400).json({ error: 'Invalid input' });
     }
 
-    // Save questions
+    // Save each question and collect its ID + points
     const savedQuestions = [];
+    let totalPoint = 0;
+
     for (const questionData of questions) {
       const question = new Question(questionData);
       const savedQuestion = await question.save();
       savedQuestions.push(savedQuestion._id);
+
+      // Add questionPoint to the total point (default to 0 if undefined)
+      totalPoint += savedQuestion.questionPoint || 0;
     }
 
-    // Save exam
+    // Create an exam with computed totalPoint
     const exam = new Exam({
       examName,
       duration,
       totalPoint,
       questions: savedQuestions,
     });
+
     const savedExam = await exam.save();
 
     res.status(201).json({
