@@ -151,6 +151,9 @@ exports.saveExam = async (req, res) => {
     let totalPoint = 0;
 
     for (const questionData of questions) {
+      if (!questionData._id) {
+        delete questionData._id;
+      }
       const question = new Question(questionData);
       const savedQuestion = await question.save();
       savedQuestions.push(savedQuestion._id);
