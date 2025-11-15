@@ -188,7 +188,7 @@ exports.updateExam = async (req, res) => {
     const { examId } = req.params;
 
     // Validate input
-    if (!examName || !duration || !totalPoint || !questions || questions.length === 0) {
+    if (!examName || !duration || !questions || questions.length === 0) {
       return res.status(400).json({ error: 'Invalid input' });
     }
 
