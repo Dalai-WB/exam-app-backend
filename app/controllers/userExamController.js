@@ -25,13 +25,14 @@ exports.saveUserExamAttempt = async (req, res) => {
       const answer = answers.find(ans => ans._id === question._id.toString());
       const selectedAnswer = answer ? answer.selectedAnswer : null;
       if (question.answerType === 'fill') {
-        const selectedAnswerArray = selectedAnswer.split(';');
+        const selectedAnswerArray = selectedAnswer !== null ? selectedAnswer.split(';') : '';
 
         const correctAnswerArray = question.correctAnswer.split(';');
         var isCorrect = true;
         correctAnswerArray.forEach((answerPart, index) => {
           const [correctAnswerValue, points] = answerPart.split('&');
-          if (selectedAnswerArray[index].trim() === correctAnswerValue.trim()) {
+          const selectedAnswerArrayItem = selectedAnswerArray === '' ? '' : selectedAnswerArray[index].trim()
+          if (selectedAnswerArrayItem === correctAnswerValue.trim()) {
             score += parseInt(points) || 0;
           } else {
             isCorrect = false;
