@@ -9,6 +9,7 @@ const questionSchema = new mongoose.Schema({
   solution: String,
   answerType: String,
   fillTypeKeys: [String],
+  imageKey: String,
 });
 
 const examSchema = new mongoose.Schema({

@@ -1,4 +1,5 @@
 const { Question, Exam, User, UserExam } = require('../models/projectModel');
+const { getSignedUrl } = require('../services/s3.service'); 
 
 exports.getExam = async (req, res) => {
   try {
@@ -17,6 +18,11 @@ exports.getExam = async (req, res) => {
       return res.status(404).json({ error: 'Exam not found' });
     }
 
+    const questionsWithUrls = exam.questions.map(q => ({
+      ...q._doc,
+      imageUrl: q.imageKey ? getSignedUrl(q.imageKey) : null
+    }));
+
     const userAttempt = await UserExam.findOne({ user: user._id, exam: exam._id }).populate({
       path: 'responses',
       populate: {
@@ -26,7 +32,7 @@ exports.getExam = async (req, res) => {
     });
 
     const data = {
-      exam: exam,
+      exam: { ...exam._doc, questions: questionsWithUrls },
       userAttempt: userAttempt
     }
     res.json(data);
@@ -40,15 +46,22 @@ exports.getAdminExam = async (req, res) => {
   try {
     const { examId } = req.params;
 
-    const exam = await Exam.findById(examId).populate({
-      path: 'questions',
-    });
+    const exam = await Exam.findById(examId).populate('questions');
 
     if (!exam) {
       return res.status(404).json({ error: 'Exam not found' });
     }
 
-    res.json(exam);
+    // Map questions to include signed URLs for images
+    const questionsWithUrls = exam.questions.map((q) => ({
+      ...q._doc,
+      imageUrl: q.imageKey ? getSignedUrl(q.imageKey) : null, // generate signed URL
+    }));
+
+    res.json({
+      ...exam._doc,
+      questions: questionsWithUrls,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).send('Error occurred while fetching exam questions');
