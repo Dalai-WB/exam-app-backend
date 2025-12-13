@@ -136,7 +136,7 @@ exports.deleteUser = async (req, res) => {
   }
 
   try {
-    // Find the user in MongoDB to get the Firebase ID
+    // Find the user in MongoDB
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found.' });
@@ -144,15 +144,25 @@ exports.deleteUser = async (req, res) => {
 
     const fireId = user.fireId;
 
-    // Delete the user from MongoDB
-    await User.findByIdAndDelete(userId);
+    // Try deleting the Firebase user
+    try {
+      await admin.auth().deleteUser(fireId);
+      console.log(`Firebase user ${fireId} deleted.`);
+    } catch (firebaseError) {
+      if (firebaseError.code === 'auth/user-not-found') {
+        console.warn(`Firebase user ${fireId} not found, skipping deletion.`);
+      } else {
+        throw firebaseError; // re-throw other Firebase errors
+      }
+    }
 
-    await admin.auth().deleteUser(fireId);
+    // Delete MongoDB user
+    await User.findByIdAndDelete(userId);
 
     res.status(200).json({ message: `User with ID ${userId} deleted successfully`, id: userId });
   } catch (error) {
-    console.error('Error deleting user from MongoDB:', error);
-    res.status(500).json({ message: 'Error deleting user from MongoDB, please try again.' });
+    console.error('Error deleting user:', error);
+    res.status(500).json({ message: 'Error deleting user, please try again.' });
   }
 };
 
