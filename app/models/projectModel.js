@@ -17,7 +17,8 @@ const examSchema = new mongoose.Schema({
   examName: String,
   questions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Question' }],
   duration: Number,
-  totalPoint: Number
+  totalPoint: Number,
+  variant: String,
 });
 
 const userSchema = new mongoose.Schema({
