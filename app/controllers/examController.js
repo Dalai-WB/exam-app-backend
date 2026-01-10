@@ -152,7 +152,7 @@ exports.saveUserExamAttempt = async (req, res) => {
 
 exports.saveExam = async (req, res) => {
   try {
-    const { examName, duration, questions } = req.body;
+    const { examName, duration, questions, variant } = req.body;
 
     // Validate input
     if (!examName || !duration || !questions || questions.length === 0) {
@@ -181,6 +181,7 @@ exports.saveExam = async (req, res) => {
       duration,
       totalPoint,
       questions: savedQuestions,
+      variant,
     });
 
     const savedExam = await exam.save();
@@ -197,7 +198,7 @@ exports.saveExam = async (req, res) => {
 
 exports.updateExam = async (req, res) => {
   try {
-    const { examName, duration, totalPoint, questions } = req.body;
+    const { examName, duration, totalPoint, questions, variant } = req.body;
     const { examId } = req.params;
 
     // Validate input
@@ -239,6 +240,7 @@ exports.updateExam = async (req, res) => {
     existingExam.examName = examName;
     existingExam.duration = duration;
     existingExam.totalPoint = totalPoint;
+    existingExam.variant = variant;
     existingExam.questions = updatedQuestions;
     const updatedExam = await existingExam.save();
 
