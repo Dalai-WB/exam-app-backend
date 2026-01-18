@@ -11,6 +11,7 @@ const questionSchema = new mongoose.Schema({
   answerType: String,
   fillTypeKeys: [String],
   imageKey: String,
+  solutionImageKey: String,
 });
 
 const examSchema = new mongoose.Schema({

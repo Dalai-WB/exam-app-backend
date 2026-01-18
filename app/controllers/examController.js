@@ -1,5 +1,5 @@
 const { Question, Exam, User, UserExam } = require('../models/projectModel');
-const { getSignedUrl } = require('../services/s3.service'); 
+const { getSignedUrl } = require('../services/s3.service');
 
 exports.getExam = async (req, res) => {
   try {
@@ -7,7 +7,7 @@ exports.getExam = async (req, res) => {
 
     const exam = await Exam.findById(examId).populate({
       path: 'questions',
-      select: '-correctAnswer -solution'
+      select: '-correctAnswer -solution -solutionImageKey', // Exclude correctAnswer and solution fields
     });
     const user = await User.findOne({ fireId });
     if (!user) {
@@ -31,9 +31,22 @@ exports.getExam = async (req, res) => {
       },
     });
 
+    const responsesWithQuestionData = userAttempt.responses.map((response) => {
+      const question = response.question;
+      return {
+        ...response._doc,
+        question: {
+          ...question._doc, // spread question fields
+          solutionImageUrl: question.solutionImageKey
+            ? getSignedUrl(question.solutionImageKey)
+            : null,
+        }
+      }
+    });
+
     const data = {
       exam: { ...exam._doc, questions: questionsWithUrls },
-      userAttempt: userAttempt
+      userAttempt: { ...userAttempt._doc, responses: responsesWithQuestionData }
     }
     res.json(data);
   } catch (error) {
@@ -56,6 +69,7 @@ exports.getAdminExam = async (req, res) => {
     const questionsWithUrls = exam.questions.map((q) => ({
       ...q._doc,
       imageUrl: q.imageKey ? getSignedUrl(q.imageKey) : null, // generate signed URL
+      solutionImageUrl: q.solutionImageKey ? getSignedUrl(q.solutionImageKey) : null, // generate signed URL for solution image
     }));
 
     res.json({
