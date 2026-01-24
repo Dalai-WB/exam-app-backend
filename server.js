@@ -30,7 +30,7 @@ app.use(bodyParser.json());
 
 // Routes
 const routes = require('./app/routes');
-app.use('/', routes);
+app.use('/api', routes);
 
 // Start the server
 app.listen(PORT, () => {
