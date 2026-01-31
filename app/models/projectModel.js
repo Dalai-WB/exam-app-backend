@@ -26,6 +26,7 @@ const userSchema = new mongoose.Schema({
   username: String,
   firstName: String,
   lastName: String,
+  phoneNumber: String,
   role: String,
   fireId: String,
   teacherId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
