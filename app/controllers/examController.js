@@ -31,22 +31,25 @@ exports.getExam = async (req, res) => {
       },
     });
 
-    const responsesWithQuestionData = userAttempt.responses.map((response) => {
-      const question = response.question;
-      return {
-        ...response._doc,
-        question: {
-          ...question._doc, // spread question fields
-          solutionImageUrl: question.solutionImageKey
-            ? getSignedUrl(question.solutionImageKey)
-            : null,
+    let responsesWithQuestionData = [];
+    if (userAttempt) {
+      responsesWithQuestionData = userAttempt.responses.map((response) => {
+        const question = response.question;
+        return {
+          ...response._doc,
+          question: {
+            ...question._doc, // spread question fields
+            solutionImageUrl: question.solutionImageKey
+              ? getSignedUrl(question.solutionImageKey)
+              : null,
+          }
         }
-      }
-    });
+      });
+    }
 
     const data = {
       exam: { ...exam._doc, questions: questionsWithUrls },
-      userAttempt: { ...userAttempt._doc, responses: responsesWithQuestionData }
+      userAttempt: userAttempt !== null ? { ...userAttempt._doc, responses: responsesWithQuestionData } : null,
     }
     res.json(data);
   } catch (error) {
