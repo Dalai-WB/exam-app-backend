@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-mongoose.connect('mongodb+srv://baaskaberkhee:QuAQCkoB7zZRKMSs@cluster0.58xlb.mongodb.net/', {
+mongoose.connect('mongodb://exam_app:Dalai-0115@mongodb:27017/examdb?authSource=examdb', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 })
