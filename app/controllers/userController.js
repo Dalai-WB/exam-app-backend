@@ -47,7 +47,7 @@ exports.getTeachers = async (req, res) => {
     const teachers = await User.find({ role: 'teacher' });
 
     if (!teachers || teachers.length === 0) {
-      return res.status(404).json({ message: 'No teachers found' });
+      return res.json({ message: 'No teachers found' });
     }
 
     res.json(teachers);
