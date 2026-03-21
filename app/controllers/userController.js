@@ -157,8 +157,9 @@ exports.deleteUser = async (req, res) => {
       }
     }
 
-    // Delete MongoDB user
+    // Delete MongoDB user and their exam records
     await User.findByIdAndDelete(userId);
+    await UserExam.deleteMany({ user: userId });
 
     res.status(200).json({ message: `User with ID ${userId} deleted successfully`, id: userId });
   } catch (error) {
